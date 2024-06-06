@@ -172,9 +172,10 @@ s
 }
 
 .subtotal {
-  font-style: italic;
+  /* font-style: italic; */
   font-weight: bold;
   background: #009fe3;
+  color: white;
 }
 
 .total {
