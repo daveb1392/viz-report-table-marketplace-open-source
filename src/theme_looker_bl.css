@@ -26,7 +26,7 @@
   font-size: 12px;
   z-index: 2;
 }
-/* #2F5496 */
+/* #005b9a  */
 .tooltipTable {
   font-family: Open Sans, Helvetica, Arial, sans-serif;
   border: 0px;
@@ -43,7 +43,7 @@
 }
 
 .hover {
-  background-color: #ffffbb;
+  background-color: #e1f6fd;
 }
 
 .reportTable {
@@ -56,59 +56,59 @@
 }
 
 th.headerCell {
-  background-color: #2F5496;
+  background-color: #005b9a ;
   padding: 5px;
   color: white;
-  border-bottom: 1px solid #2F5496;
+  border-bottom: 1px solid #005b9a ;
 }
-
+s
 .headerCell.dimension {
-  background-color: #2F5496;
-  border-right: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-right: 1px solid #005b9a ;
 }
 
 .headerCell.pivot {
-  background-color: #2F5496;
-  border-right: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-right: 1px solid #005b9a ;
 }
 
 .headerCell.measure {
-  background-color: #2F5496;
-  border-left: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-left: 1px solid #005b9a ;
 }
 
 .headerCell.measure.calculation {
   background-color: #c9dfc5;
-  border-left: 1px solid #2F5496;
+  border-left: 1px solid #005b9a ;
 }
 
 .headerCell.transposed.dimension {
-  background-color: #2F5496;
+  background-color: #005b9a ;
 }
 
 .headerCell.transposed.dimension.merged {
-  background-color: #2F5496 !important;
+  background-color: #005b9a  !important;
 }
 
 /* .headerCell.dimension.headerRow {
-  background-color: #2F5496;
-  border-right: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-right: 1px solid #005b9a ;
 }
 
 .headerCell.pivot.headerRow {
-  background-color: #2F5496;
-  border-right: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-right: 1px solid #005b9a ;
 }
 
 .headerCell.measure.headerRow {
-  background-color: #2F5496;
-  border-left: 1px solid #2F5496;
+  background-color: #005b9a ;
+  border-left: 1px solid #005b9a ;
 } */
 
 .rowCell {
   vertical-align: super;
   padding-left: 5px;
-  border-bottom: 1px solid #2F5496;
+  border-bottom: 1px solid #005b9a ;
 }
 
 .rowCell.merged {
@@ -120,15 +120,15 @@ th.headerCell {
 }
 
 .indexCell.transposed.pivot {
-  background-color: #2F5496;
+  background-color: #005b9a ;
 }
 
 .indexCell.transposed.dimension {
-  background-color: #2F5496;
+  background-color: #005b9a ;
 }
 
 .indexCell.transposed.measure {
-  background-color: #2F5496;
+  background-color: #005b9a ;
 }
 
 .indexCell.transposed.calculation {
@@ -136,15 +136,15 @@ th.headerCell {
 }
 
 .indexCell.transposed.pivot.merged {
-  background-color: #2F5496 !important;
+  background-color: #005b9a  !important;
 }
 
 .indexCell.transposed.dimension.merged {
-  background-color: #2F5496 !important;
+  background-color: #005b9a  !important;
 }
 
 .indexCell.transposed.measure.merged {
-  background-color: #2F5496 !important;
+  background-color: #005b9a  !important;
 }
 
 .indexCell.transposed.calculation.merged {
