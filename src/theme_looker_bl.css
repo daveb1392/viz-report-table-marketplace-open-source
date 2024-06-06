@@ -49,7 +49,7 @@
 .reportTable {
   font-family: Open Sans, Helvetica, Arial, Noto Sans TC, Noto Sans SC,
     sans-serif;
-  color: #696969;
+  color: white;
   border-collapse: collapse;
   border-spacing: 3px;
   table-layout: fixed;
@@ -62,7 +62,7 @@ th.headerCell {
 }
 
 .headerCell.dimension {
-  background-color: #e4ecf3;
+  background-color: #2F5496;
   border-right: 1px solid #bdc3c7;
 }
 
@@ -72,7 +72,7 @@ th.headerCell {
 }
 
 .headerCell.measure {
-  background-color: #e4d0bd;
+  background-color: #2F5496;
   border-left: 1px solid #bdc3c7;
 }
 
@@ -82,11 +82,11 @@ th.headerCell {
 }
 
 .headerCell.transposed.dimension {
-  background-color: #e4ecf3;
+  background-color: #2F5496;
 }
 
 .headerCell.transposed.dimension.merged {
-  background-color: #e4ecf3 !important;
+  background-color: #2F5496 !important;
 }
 
 /* .headerCell.dimension.headerRow {
@@ -123,11 +123,11 @@ th.headerCell {
 }
 
 .indexCell.transposed.dimension {
-  background-color: #e4ecf3;
+  background-color: #2F5496;
 }
 
 .indexCell.transposed.measure {
-  background-color: #e4d0bd;
+  background-color: #2F5496;
 }
 
 .indexCell.transposed.calculation {
@@ -139,11 +139,11 @@ th.headerCell {
 }
 
 .indexCell.transposed.dimension.merged {
-  background-color: #e4ecf3 !important;
+  background-color: #2F5496 !important;
 }
 
 .indexCell.transposed.measure.merged {
-  background-color: #e4d0bd !important;
+  background-color: #2F5496 !important;
 }
 
 .indexCell.transposed.calculation.merged {
