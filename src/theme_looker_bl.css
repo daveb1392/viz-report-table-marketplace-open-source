@@ -68,7 +68,7 @@ th.headerCell {
 }
 
 .headerCell.pivot {
-  background-color: #ccd8e4;
+  background-color: #2F5496;
   border-right: 1px solid #2F5496;
 }
 
@@ -91,17 +91,17 @@ th.headerCell {
 }
 
 /* .headerCell.dimension.headerRow {
-  background-color: #ccd8e4;
+  background-color: #2F5496;
   border-right: 1px solid #2F5496;
 }
 
 .headerCell.pivot.headerRow {
-  background-color: #ccd8e4;
+  background-color: #2F5496;
   border-right: 1px solid #2F5496;
 }
 
 .headerCell.measure.headerRow {
-  background-color: #ccd8e4;
+  background-color: #2F5496;
   border-left: 1px solid #2F5496;
 } */
 
@@ -120,7 +120,7 @@ th.headerCell {
 }
 
 .indexCell.transposed.pivot {
-  background-color: #ccd8e4;
+  background-color: #2F5496;
 }
 
 .indexCell.transposed.dimension {
@@ -136,7 +136,7 @@ th.headerCell {
 }
 
 .indexCell.transposed.pivot.merged {
-  background-color: #ccd8e4 !important;
+  background-color: #2F5496 !important;
 }
 
 .indexCell.transposed.dimension.merged {
