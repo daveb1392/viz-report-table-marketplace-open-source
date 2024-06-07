@@ -510,6 +510,29 @@ class VisPluginTableModel {
    * - this.headers
    * @param {*} queryResponse
    */
+  // addPivotsAndHeaders(queryResponse) {
+  //   queryResponse.fields.pivots.forEach((pivot, i) => {
+  //     var pivot_field = new ModelPivot({
+  //       vis: this,
+  //       queryResponseField: pivot,
+  //     });
+  //     this.pivot_fields.push(pivot_field);
+  //     this.headers.push({type: 'pivot' + i, modelField: pivot_field});
+  //   });
+
+  //   var measureHeaders = this.useHeadings
+  //     ? [
+  //         {
+  //           type: 'heading',
+  //           modelField: {label: '(will be replaced by header for column)s'},
+  //         },
+  //       ]
+  //     : [];
+
+  //   measureHeaders.push({
+  //     type: 'field',
+  //     modelField: {label: '(will be replaced by field for column)'},
+  //   });
   addPivotsAndHeaders(queryResponse) {
     queryResponse.fields.pivots.forEach((pivot, i) => {
       var pivot_field = new ModelPivot({
@@ -517,23 +540,45 @@ class VisPluginTableModel {
         queryResponseField: pivot,
       });
       this.pivot_fields.push(pivot_field);
-      this.headers.push({type: 'pivot' + i, modelField: pivot_field});
+  
+      // Apply date formatting
+      var formattedLabel = pivot_field.label;
+      if (Date.parse(pivot_field.label)) {
+        const date = new Date(pivot_field.label);
+        formattedLabel = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      }
+  
+      this.headers.push({ type: 'pivot' + i, modelField: pivot_field, label: formattedLabel });
     });
-
+  
     var measureHeaders = this.useHeadings
       ? [
           {
             type: 'heading',
-            modelField: {label: '(will be replaced by header for column)s'},
+            modelField: { label: '(will be replaced by header for column)s' },
           },
         ]
       : [];
-
+  
     measureHeaders.push({
       type: 'field',
-      modelField: {label: '(will be replaced by field for column)'},
+      modelField: { label: '(will be replaced by field for column)' },
     });
-
+  
+    if (this.sortColsBy === 'pivots') {
+      this.headers.push(...measureHeaders);
+    } else {
+      this.headers.unshift(...measureHeaders);
+    }
+  
+    for (var i = 0; i < this.headers.length; i++) {
+      if (!this.headers[i] === 'field') {
+        this.fieldLevel = i;
+        break;
+      }
+    }
+  }
+  
     // FIXME: test this feature before making a release.
     // var measureHeaders = [];
     // if (!this.transposeTable || queryResponse.fields.measures.length > 0) {
