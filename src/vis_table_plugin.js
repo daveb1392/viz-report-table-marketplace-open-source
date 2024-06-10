@@ -195,19 +195,6 @@ const tableModelCoreOptions = {
  * Represents an "enriched data object" with additional methods and properties for data vis
  * Takes the data, config and queryResponse objects as inputs to the constructor
  */
-function convertDateFormat(dateString) {
-  const date = new Date(dateString);
-  const options = {month: 'short', year: 'numeric'};
-  return date.toLocaleDateString('en-US', options);
-}
-
-function applyDateConversion(label) {
-  if (label.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    return convertDateFormat(label);
-  }
-  return label;
-}
-
 class VisPluginTableModel {
   /**
    * Build the LookerData object
@@ -530,13 +517,7 @@ class VisPluginTableModel {
         queryResponseField: pivot,
       });
       this.pivot_fields.push(pivot_field);
-
-      // Apply date conversion here
-      const convertedLabel = applyDateConversion(pivot_field.label);
-      this.headers.push({
-        type: 'pivot' + i,
-        modelField: {...pivot_field, label: convertedLabel},
-      });
+      this.headers.push({type: 'pivot' + i, modelField: pivot_field});
     });
 
     var measureHeaders = this.useHeadings

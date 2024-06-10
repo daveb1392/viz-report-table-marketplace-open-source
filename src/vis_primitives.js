@@ -1,3 +1,5 @@
+import SSF from 'ssf';
+
 /**
  * Returns an array of given length, all populated with same value
  * Convenience function e.g. to initialise arrays of zeroes or nulls.
@@ -12,6 +14,20 @@ const newArray = function (length, value) {
   }
   return arr;
 };
+
+// Date conversion functions
+function convertDateFormat(dateString) {
+  const date = new Date(dateString);
+  const options = {month: 'short', year: 'numeric'};
+  return date.toLocaleDateString('en-US', options);
+}
+
+function applyDateConversion(label) {
+  if (label.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return convertDateFormat(label);
+  }
+  return label;
+}
 
 class ModelField {
   constructor({vis, queryResponseField}) {
@@ -142,7 +158,7 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = label;
+    this.label = applyDateConversion(label); // Apply date conversion here
 
     this.align = align
       ? align
@@ -412,8 +428,7 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label =
-        level.label === null ? this.getHeaderCellLabel(i) : level.label;
+      level.label = applyDateConversion(this.getHeaderCellLabel(i));
     });
   }
 
