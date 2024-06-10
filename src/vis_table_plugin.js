@@ -195,6 +195,19 @@ const tableModelCoreOptions = {
  * Represents an "enriched data object" with additional methods and properties for data vis
  * Takes the data, config and queryResponse objects as inputs to the constructor
  */
+function convertDateFormat(dateString) {
+  const date = new Date(dateString);
+  const options = {month: 'short', year: 'numeric'};
+  return date.toLocaleDateString('en-US', options);
+}
+
+function applyDateConversion(label) {
+  if (label.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    return convertDateFormat(label);
+  }
+  return label;
+}
+
 class VisPluginTableModel {
   /**
    * Build the LookerData object
@@ -314,14 +327,6 @@ class VisPluginTableModel {
       this.transposeColumnsIntoRows();
     }
 
-    // Apply date conversion to headers
-    this.applyDateConversionToHeaders(this.headers);
-
-    // If transposeTable is true, apply to transposed headers as well
-    if (this.transposeTable) {
-      this.applyDateConversionToHeaders(this.transposed_headers);
-    }
-
     this.validateConfig();
     this.getTableColumnGroups();
   }
@@ -330,16 +335,6 @@ class VisPluginTableModel {
     return tableModelCoreOptions;
   }
 
-  applyDateConversionToHeaders(headers) {
-    headers.forEach(header => {
-      if (
-        header.modelField &&
-        header.modelField.label.match(/^\d{4}-\d{2}-\d{2}$/)
-      ) {
-        header.modelField.label = convertDateFormat(header.modelField.label);
-      }
-    });
-  }
   /**
    * Hook to be called by a Looker custom vis, for example:
    *    this.trigger('registerOptions', VisPluginTableModel.getConfigOptions())
@@ -535,7 +530,13 @@ class VisPluginTableModel {
         queryResponseField: pivot,
       });
       this.pivot_fields.push(pivot_field);
-      this.headers.push({type: 'pivot' + i, modelField: pivot_field});
+
+      // Apply date conversion here
+      const convertedLabel = applyDateConversion(pivot_field.label);
+      this.headers.push({
+        type: 'pivot' + i,
+        modelField: {...pivot_field, label: convertedLabel},
+      });
     });
 
     var measureHeaders = this.useHeadings
@@ -2855,7 +2856,7 @@ class VisPluginTableModel {
 
     var isReportedIn = null;
     var reportInSetting =
-      this.config['reportIn|' + convertDateFormat(focusColumn.modelField.name)];
+      this.config['reportIn|' + focusColumn.modelField.name];
     var reportInLabels = {
       1000: '000s',
       1000000: 'Millions',
