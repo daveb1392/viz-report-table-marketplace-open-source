@@ -510,29 +510,6 @@ class VisPluginTableModel {
    * - this.headers
    * @param {*} queryResponse
    */
-  // addPivotsAndHeaders(queryResponse) {
-  //   queryResponse.fields.pivots.forEach((pivot, i) => {
-  //     var pivot_field = new ModelPivot({
-  //       vis: this,
-  //       queryResponseField: pivot,
-  //     });
-  //     this.pivot_fields.push(pivot_field);
-  //     this.headers.push({type: 'pivot' + i, modelField: pivot_field});
-  //   });
-
-  //   var measureHeaders = this.useHeadings
-  //     ? [
-  //         {
-  //           type: 'heading',
-  //           modelField: {label: '(will be replaced by header for column)s'},
-  //         },
-  //       ]
-  //     : [];
-
-  //   measureHeaders.push({
-  //     type: 'field',
-  //     modelField: {label: '(will be replaced by field for column)'},
-  //   });
   addPivotsAndHeaders(queryResponse) {
     queryResponse.fields.pivots.forEach((pivot, i) => {
       var pivot_field = new ModelPivot({
@@ -540,22 +517,7 @@ class VisPluginTableModel {
         queryResponseField: pivot,
       });
       this.pivot_fields.push(pivot_field);
-
-      // Apply date formatting
-      var formattedLabel = pivot_field.label;
-      if (Date.parse(pivot_field.label)) {
-        const date = new Date(pivot_field.label);
-        formattedLabel = date.toLocaleString('default', {
-          month: 'short',
-          year: 'numeric',
-        });
-      }
-
-      this.headers.push({
-        type: 'pivot' + i,
-        modelField: pivot_field,
-        label: formattedLabel,
-      });
+      this.headers.push({type: 'pivot' + i, modelField: pivot_field});
     });
 
     var measureHeaders = this.useHeadings
@@ -572,6 +534,15 @@ class VisPluginTableModel {
       modelField: {label: '(will be replaced by field for column)'},
     });
 
+    // FIXME: test this feature before making a release.
+    // var measureHeaders = [];
+    // if (!this.transposeTable || queryResponse.fields.measures.length > 0) {
+    //   measureHeaders.push({
+    //     type: 'field',
+    //     modelField: { label: '(will be replaced by field for column)' },
+    //   });
+    // }
+
     if (this.sortColsBy === 'pivots') {
       this.headers.push(...measureHeaders);
     } else {
@@ -586,29 +557,18 @@ class VisPluginTableModel {
     }
   }
 
-  // FIXME: test this feature before making a release.
-  // var measureHeaders = [];
-  // if (!this.transposeTable || queryResponse.fields.measures.length > 0) {
-  //   measureHeaders.push({
-  //     type: 'field',
-  //     modelField: { label: '(will be replaced by field for column)' },
-  //   });
-  // }
+  getRenderedFromHtml(cellValue) {
+    // Check if the cellValue is a date in the format "YYYY-MM-DD"
+    if (/^\d{4}-\d{2}-\d{2}$/.test(cellValue)) {
+      const date = new Date(cellValue);
+      const month = date.toLocaleString('default', {month: 'short'});
+      const year = date.getFullYear();
+      return `${month} ${year}`;
+    }
 
-  //   if (this.sortColsBy === 'pivots') {
-  //     this.headers.push(...measureHeaders);
-  //   } else {
-  //     this.headers.unshift(...measureHeaders);
-  //   }
-
-  //   for (var i = 0; i < this.headers.length; i++) {
-  //     if (!this.headers[i] === 'field') {
-  //       this.fieldLevel = i;
-  //       break;
-  //     }
-  //   }
-  // }
-
+    // Return the original cellValue if it's not a date
+    return cellValue;
+  }
   /**
    * - this.dimensions
    * - this.columns
