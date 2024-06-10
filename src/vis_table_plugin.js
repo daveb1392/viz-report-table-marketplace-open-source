@@ -314,6 +314,14 @@ class VisPluginTableModel {
       this.transposeColumnsIntoRows();
     }
 
+    // Apply date conversion to headers
+    this.applyDateConversionToHeaders(this.headers);
+
+    // If transposeTable is true, apply to transposed headers as well
+    if (this.transposeTable) {
+      this.applyDateConversionToHeaders(this.transposed_headers);
+    }
+
     this.validateConfig();
     this.getTableColumnGroups();
   }
@@ -322,6 +330,16 @@ class VisPluginTableModel {
     return tableModelCoreOptions;
   }
 
+  applyDateConversionToHeaders(headers) {
+    headers.forEach(header => {
+      if (
+        header.modelField &&
+        header.modelField.label.match(/^\d{4}-\d{2}-\d{2}$/)
+      ) {
+        header.modelField.label = convertDateFormat(header.modelField.label);
+      }
+    });
+  }
   /**
    * Hook to be called by a Looker custom vis, for example:
    *    this.trigger('registerOptions', VisPluginTableModel.getConfigOptions())
@@ -557,18 +575,6 @@ class VisPluginTableModel {
     }
   }
 
-  getRenderedFromHtml(cellValue) {
-    // Check if the cellValue is a date in the format "YYYY-MM-DD"
-    if (/^\d{4}-\d{2}-\d{2}$/.test(cellValue)) {
-      const date = new Date(cellValue);
-      const month = date.toLocaleString('default', {month: 'short'});
-      const year = date.getFullYear();
-      return `${month} ${year}`;
-    }
-
-    // Return the original cellValue if it's not a date
-    return cellValue;
-  }
   /**
    * - this.dimensions
    * - this.columns
@@ -2849,7 +2855,7 @@ class VisPluginTableModel {
 
     var isReportedIn = null;
     var reportInSetting =
-      this.config['reportIn|' + focusColumn.modelField.name];
+      this.config['reportIn|' + convertDateFormat(focusColumn.modelField.name)];
     var reportInLabels = {
       1000: '000s',
       1000000: 'Millions',
