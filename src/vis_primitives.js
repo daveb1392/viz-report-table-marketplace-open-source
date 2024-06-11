@@ -1,12 +1,5 @@
 import SSF from 'ssf';
 
-/**
- * Returns an array of given length, all populated with same value
- * Convenience function e.g. to initialise arrays of zeroes or nulls.
- *
- * @param {*} length
- * @param {*} value
- */
 const newArray = function (length, value) {
   var arr = [];
   for (var l = 0; l < length; l++) {
@@ -15,7 +8,6 @@ const newArray = function (length, value) {
   return arr;
 };
 
-// Date conversion functions
 function convertDateFormat(dateString) {
   const date = new Date(dateString);
   const options = {month: 'short', year: 'numeric'};
@@ -158,9 +150,7 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = label
-      ? applyDateConversion(label)
-      : applyDateConversion(modelField.label);
+    this.label = label || modelField.label; // Preserve user-defined label if provided
 
     this.align = align
       ? align
@@ -413,10 +403,14 @@ class Column {
             label = 'Var ' + label;
           }
         }
+        // Apply date conversion only for pivot headers
+        label = applyDateConversion(label);
+      } else {
+        label = headerCell.label || headerCell.modelField.label;
       }
     }
 
-    return applyDateConversion(label);
+    return label;
   }
 
   getHeaderCellLabelByType(type) {
@@ -430,7 +424,8 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label = this.getHeaderCellLabel(i);
+      level.label =
+        level.label === null ? this.getHeaderCellLabel(i) : level.label;
     });
   }
 
