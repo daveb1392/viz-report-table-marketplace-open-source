@@ -150,7 +150,7 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = label || modelField.label; // Preserve user-defined label if provided
+    this.label = label;
 
     this.align = align
       ? align
