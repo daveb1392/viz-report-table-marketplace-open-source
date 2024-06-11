@@ -158,7 +158,9 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = applyDateConversion(label); // Apply date conversion here
+    this.label = label
+      ? applyDateConversion(label)
+      : applyDateConversion(modelField.label);
 
     this.align = align
       ? align
@@ -414,7 +416,7 @@ class Column {
       }
     }
 
-    return label;
+    return applyDateConversion(label);
   }
 
   getHeaderCellLabelByType(type) {
@@ -428,7 +430,7 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label = applyDateConversion(this.getHeaderCellLabel(i));
+      level.label = this.getHeaderCellLabel(i);
     });
   }
 
