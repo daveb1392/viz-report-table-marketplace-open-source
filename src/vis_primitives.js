@@ -158,8 +158,12 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-
-    this.label = label !== null ? label : modelField.label;
+    this.label =
+      type === 'pivot'
+        ? applyDateConversion(label)
+        : label !== null
+        ? label
+        : modelField.label;
 
     this.align = align
       ? align
@@ -175,11 +179,6 @@ class HeaderCell {
     }
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
-    }
-
-    // Apply date conversion only if this is a pivot header
-    if (type === 'pivot') {
-      this.label = applyDateConversion(this.label);
     }
   }
 }
