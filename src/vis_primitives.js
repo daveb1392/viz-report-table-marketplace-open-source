@@ -176,6 +176,11 @@ class HeaderCell {
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
+
+    // Apply date conversion only if this is a pivot header
+    if (type === 'pivot') {
+      this.label = applyDateConversion(this.label);
+    }
   }
 }
 
