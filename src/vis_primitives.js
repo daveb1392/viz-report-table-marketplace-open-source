@@ -403,11 +403,10 @@ class Column {
         label =
           this.vis.pivot_values.length === 2 ? 'Variance' : 'Var ' + label;
       }
-      // Apply date conversion for pivot labels
-      label = applyDateConversion(label);
     }
 
-    return label;
+    // Apply date conversion for all labels
+    return applyDateConversion(label);
   }
 
   getHeaderCellLabelByType(type) {
