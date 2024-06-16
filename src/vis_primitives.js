@@ -159,7 +159,8 @@ class HeaderCell {
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
 
-    this.label = label || applyDateConversion(modelField.label);
+    // this.label = label || applyDateConversion(modelField.label); this change is to avoid the date conversion
+    this.label = label !== null ? label : applyDateConversion(modelField.label);
 
     this.align = align
       ? align
@@ -341,6 +342,10 @@ class Column {
     this.colspans = [];
   }
 
+  /**
+   * Returns a header label for a column, to display in table vis.
+   * @param {*} level
+   */
   getHeaderCellLabel(level) {
     var headerCell = this.levels[level];
 
