@@ -158,9 +158,9 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = label
-      ? applyDateConversion(label)
-      : applyDateConversion(modelField.label);
+
+    // Determine the label
+    this.label = this.determineLabel(label, modelField, column, type);
 
     this.align = align
       ? align
@@ -177,6 +177,13 @@ class HeaderCell {
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
+  }
+
+  determineLabel(label, modelField, column, type) {
+    if (type === 'pivot') {
+      return applyDateConversion(label || modelField.label);
+    }
+    return label || modelField.label;
   }
 }
 
@@ -285,7 +292,7 @@ class DataCell {
 
 /**
  * Represents a row in the dataset that populates the vis.
- * This may be an addtional row (e.g. subtotal) not in the original query
+ * This may be an additional row (e.g. subtotal) not in the original query
  * @class
  */
 class Row {
@@ -413,10 +420,14 @@ class Column {
             label = 'Var ' + label;
           }
         }
+        // Apply date conversion only for pivot headers
+        label = applyDateConversion(label);
+      } else {
+        label = headerCell.label || headerCell.modelField.label;
       }
     }
 
-    return applyDateConversion(label);
+    return label;
   }
 
   getHeaderCellLabelByType(type) {
@@ -430,7 +441,8 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label = this.getHeaderCellLabel(i);
+      level.label =
+        level.label === null ? this.getHeaderCellLabel(i) : level.label;
     });
   }
 
