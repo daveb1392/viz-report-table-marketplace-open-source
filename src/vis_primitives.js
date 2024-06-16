@@ -159,8 +159,8 @@ class HeaderCell {
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
 
-    // Determine the label
-    this.label = this.determineLabel(label, modelField, column, type);
+    // Determine the label, apply date conversion if necessary
+    this.label = this.determineLabel(label, modelField, type);
 
     this.align = align
       ? align
@@ -179,11 +179,16 @@ class HeaderCell {
     }
   }
 
-  determineLabel(label, modelField, column, type) {
-    if (type === 'pivot') {
-      return applyDateConversion(label || modelField.label);
+  determineLabel(label, modelField, type) {
+    // Use provided label or model field label
+    let finalLabel = label || modelField.label;
+
+    // Apply date conversion for pivot type or date format labels
+    if (type === 'pivot' || /^\d{4}-\d{2}-\d{2}$/.test(finalLabel)) {
+      finalLabel = applyDateConversion(finalLabel);
     }
-    return label || modelField.label;
+
+    return finalLabel;
   }
 }
 
@@ -292,7 +297,7 @@ class DataCell {
 
 /**
  * Represents a row in the dataset that populates the vis.
- * This may be an additional row (e.g. subtotal) not in the original query
+ * This may be an addtional row (e.g. subtotal) not in the original query
  * @class
  */
 class Row {
@@ -349,82 +354,57 @@ class Column {
     this.colspans = [];
   }
 
-  /**
-   * Returns a header label for a column, to display in table vis.
-   * @param {*} level
-   */
   getHeaderCellLabel(level) {
     var headerCell = this.levels[level];
 
     if (headerCell.label !== null) {
-      var label = headerCell.label;
-    } else {
-      var label = headerCell.modelField.label;
-      var header_setting =
-        this.vis.config['heading|' + headerCell.modelField.name];
-      var label_setting =
-        this.vis.config['label|' + headerCell.modelField.name];
+      return headerCell.label;
+    }
 
-      if (headerCell.type === 'heading') {
-        if (typeof header_setting !== 'undefined') {
-          label = header_setting
-            ? header_setting
-            : headerCell.modelField.heading;
-        } else {
-          label = headerCell.modelField.heading;
-        }
-        return label;
+    let label = headerCell.modelField.label;
+    let header_setting =
+      this.vis.config['heading|' + headerCell.modelField.name];
+    let label_setting = this.vis.config['label|' + headerCell.modelField.name];
+
+    if (headerCell.type === 'heading') {
+      label =
+        typeof header_setting !== 'undefined'
+          ? header_setting
+          : headerCell.modelField.heading;
+    } else if (headerCell.type === 'field') {
+      label = this.vis.useShortName
+        ? headerCell.modelField.short_name || headerCell.modelField.label
+        : headerCell.modelField.label;
+
+      if (
+        typeof label_setting !== 'undefined' &&
+        label_setting !== this.modelField.label
+      ) {
+        label = label_setting ? label_setting : label;
       }
 
-      if (headerCell.type === 'field') {
-        label = this.vis.useShortName
-          ? headerCell.modelField.short_name || headerCell.modelField.label
-          : headerCell.modelField.label;
-
-        if (
-          typeof label_setting !== 'undefined' &&
-          label_setting !== this.modelField.label
-        ) {
-          label = label_setting ? label_setting : label;
-        }
-
-        if (this.isVariance) {
-          if (this.vis.groupVarianceColumns) {
-            if (this.vis.pivot_values.length === 2) {
-              label =
-                this.variance_type === 'absolute' ? label + ' #' : label + ' %';
-            } else {
-              label =
-                this.variance_type === 'absolute'
-                  ? label + ' Var #'
-                  : label + ' Var %';
-            }
-          } else {
-            label = this.variance_type === 'absolute' ? 'Var #' : 'Var %';
-          }
-        }
-
-        if (
-          typeof this.vis.useViewName !== 'undefined' &&
-          this.vis.useViewName
-        ) {
-          label = [this.modelField.view, label].join(' ');
-        }
+      if (this.isVariance) {
+        label = this.vis.groupVarianceColumns
+          ? this.variance_type === 'absolute'
+            ? label + ' #'
+            : label + ' %'
+          : this.variance_type === 'absolute'
+          ? 'Var #'
+          : 'Var %';
       }
 
-      if (headerCell.type === 'pivot') {
-        if (this.isVariance && this.vis.groupVarianceColumns) {
-          if (this.vis.pivot_values.length === 2) {
-            label = 'Variance';
-          } else {
-            label = 'Var ' + label;
-          }
-        }
-        // Apply date conversion only for pivot headers
-        label = applyDateConversion(label);
-      } else {
-        label = headerCell.label || headerCell.modelField.label;
+      if (typeof this.vis.useViewName !== 'undefined' && this.vis.useViewName) {
+        label = [this.modelField.view, label].join(' ');
       }
+    }
+
+    if (headerCell.type === 'pivot') {
+      if (this.isVariance && this.vis.groupVarianceColumns) {
+        label =
+          this.vis.pivot_values.length === 2 ? 'Variance' : 'Var ' + label;
+      }
+      // Apply date conversion for pivot labels
+      label = applyDateConversion(label);
     }
 
     return label;
@@ -441,8 +421,7 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label =
-        level.label === null ? this.getHeaderCellLabel(i) : level.label;
+      level.label = this.getHeaderCellLabel(i);
     });
   }
 
