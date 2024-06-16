@@ -159,8 +159,7 @@ class HeaderCell {
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
 
-    // Determine the label, apply date conversion if necessary
-    this.label = this.determineLabel(label, modelField, type);
+    this.label = this.determineLabel(label, modelField);
 
     this.align = align
       ? align
@@ -179,12 +178,12 @@ class HeaderCell {
     }
   }
 
-  determineLabel(label, modelField, type) {
-    // Use provided label or model field label
+  determineLabel(label, modelField) {
+    // Use the provided label or model field label
     let finalLabel = label || modelField.label;
 
-    // Apply date conversion for pivot type or date format labels
-    if (type === 'pivot' || /^\d{4}-\d{2}-\d{2}$/.test(finalLabel)) {
+    // Apply date conversion if the label matches a date format
+    if (!label && /^\d{4}-\d{2}-\d{2}$/.test(finalLabel)) {
       finalLabel = applyDateConversion(finalLabel);
     }
 
