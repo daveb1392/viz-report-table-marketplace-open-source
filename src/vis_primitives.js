@@ -1,5 +1,12 @@
 import SSF from 'ssf';
 
+/**
+ * Returns an array of given length, all populated with same value
+ * Convenience function e.g. to initialise arrays of zeroes or nulls.
+ *
+ * @param {*} length
+ * @param {*} value
+ */
 const newArray = function (length, value) {
   var arr = [];
   for (var l = 0; l < length; l++) {
@@ -8,6 +15,7 @@ const newArray = function (length, value) {
   return arr;
 };
 
+// Date conversion functions
 function convertDateFormat(dateString) {
   const date = new Date(dateString);
   const options = {month: 'short', year: 'numeric'};
@@ -150,7 +158,9 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = this.applyCustomLabel(label, modelField, column);
+    this.label = label
+      ? applyDateConversion(label)
+      : applyDateConversion(modelField.label);
 
     this.align = align
       ? align
@@ -167,16 +177,6 @@ class HeaderCell {
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
-  }
-
-  applyCustomLabel(label, modelField, column) {
-    if (label) {
-      return applyDateConversion(label);
-    }
-    if (column.modelField.type === 'pivot') {
-      return applyDateConversion(modelField.label);
-    }
-    return modelField.label;
   }
 }
 
@@ -285,7 +285,7 @@ class DataCell {
 
 /**
  * Represents a row in the dataset that populates the vis.
- * This may be an additional row (e.g. subtotal) not in the original query
+ * This may be an addtional row (e.g. subtotal) not in the original query
  * @class
  */
 class Row {
@@ -413,14 +413,10 @@ class Column {
             label = 'Var ' + label;
           }
         }
-        // Apply date conversion only for pivot headers
-        label = applyDateConversion(label);
-      } else {
-        label = headerCell.label || headerCell.modelField.label;
       }
     }
 
-    return label;
+    return applyDateConversion(label);
   }
 
   getHeaderCellLabelByType(type) {
@@ -434,8 +430,7 @@ class Column {
 
   setHeaderCellLabels() {
     this.levels.forEach((level, i) => {
-      level.label =
-        level.label === null ? this.getHeaderCellLabel(i) : level.label;
+      level.label = this.getHeaderCellLabel(i);
     });
   }
 
