@@ -159,7 +159,7 @@ class HeaderCell {
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
 
-    this.label = this.determineLabel(label, modelField);
+    this.label = label || applyDateConversion(modelField.label);
 
     this.align = align
       ? align
@@ -176,18 +176,6 @@ class HeaderCell {
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
-  }
-
-  determineLabel(label, modelField) {
-    // Use the provided label or model field label
-    let finalLabel = label || modelField.label;
-
-    // Apply date conversion if the label matches a date format
-    if (!label && /^\d{4}-\d{2}-\d{2}$/.test(finalLabel)) {
-      finalLabel = applyDateConversion(finalLabel);
-    }
-
-    return finalLabel;
   }
 }
 
@@ -404,7 +392,7 @@ class Column {
       }
     }
 
-    // Apply date conversion for all labels
+    // Apply date conversion only if the label is not user-defined
     return applyDateConversion(label);
   }
 
