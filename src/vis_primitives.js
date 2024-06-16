@@ -150,7 +150,7 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = label;
+    this.label = this.applyCustomLabel(label, modelField, column);
 
     this.align = align
       ? align
@@ -167,6 +167,16 @@ class HeaderCell {
     if (modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
+  }
+
+  applyCustomLabel(label, modelField, column) {
+    if (label) {
+      return applyDateConversion(label);
+    }
+    if (column.modelField.type === 'pivot') {
+      return applyDateConversion(modelField.label);
+    }
+    return modelField.label;
   }
 }
 
@@ -275,7 +285,7 @@ class DataCell {
 
 /**
  * Represents a row in the dataset that populates the vis.
- * This may be an addtional row (e.g. subtotal) not in the original query
+ * This may be an additional row (e.g. subtotal) not in the original query
  * @class
  */
 class Row {
