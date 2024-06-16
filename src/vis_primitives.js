@@ -159,7 +159,7 @@ class HeaderCell {
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
 
-    this.label = label !== null ? label : modelField.label;
+    this.label = label !== null ? label : applyDateConversion(modelField.label);
 
     this.align = align
       ? align
@@ -394,11 +394,10 @@ class Column {
         label =
           this.vis.pivot_values.length === 2 ? 'Variance' : 'Var ' + label;
       }
-      // Apply date conversion only if the label is for a pivot header
-      return applyDateConversion(label);
     }
 
-    return label;
+    // Apply date conversion only if the label is not user-defined
+    return applyDateConversion(label);
   }
 
   getHeaderCellLabelByType(type) {
