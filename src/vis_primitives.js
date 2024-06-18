@@ -161,7 +161,10 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label = applyDateConversion(label || modelField.label, label !== null);
+    this.label = applyDateConversion(
+      label || this.column.getHeaderCellLabel(this.column.levels.indexOf(this)),
+      label !== null
+    );
 
     this.align = align
       ? align
@@ -351,7 +354,7 @@ class Column {
     var headerCell = this.levels[level];
 
     if (headerCell.label !== null) {
-      return headerCell.label; // Return the user-defined label without conversion
+      return headerCell.label;
     }
 
     let label = headerCell.modelField.label;
@@ -398,8 +401,7 @@ class Column {
       }
     }
 
-    // Return the label (may be modified later in HeaderCell)
-    return label;
+    return label; // Do not apply date conversion here, it's handled in HeaderCell constructor
   }
 
   getHeaderCellLabelByType(type) {
