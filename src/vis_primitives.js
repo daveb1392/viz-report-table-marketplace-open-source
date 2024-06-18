@@ -1,3 +1,4 @@
+import SSF from 'ssf';
 /**
  * Returns an array of given length, all populated with same value
  * Convenience function e.g. to initialise arrays of zeroes or nulls.
@@ -24,8 +25,8 @@ function isValidDate(dateString) {
   );
 }
 
-function applyDateConversion(label, headerElement) {
-  if (isValidDate(headerElement.textContent)) {
+function applyDateConversion(label, isUserDefined = false) {
+  if (!isUserDefined && isValidDate(label)) {
     return convertDateFormat(label);
   }
   return label;
@@ -160,13 +161,7 @@ class HeaderCell {
     this.rowspan = 1;
     this.headerRow = true;
     this.cell_style = ['headerCell'].concat(cell_style);
-    this.label =
-      label === null
-        ? applyDateConversion(
-            column.getHeaderCellLabel(this.column.levels.indexOf(this)),
-            this
-          )
-        : label;
+    this.label = applyDateConversion(label || modelField.label, label !== null);
 
     this.align = align
       ? align
@@ -356,72 +351,54 @@ class Column {
     var headerCell = this.levels[level];
 
     if (headerCell.label !== null) {
-      var label = headerCell.label;
-    } else {
-      var label = headerCell.modelField.label;
-      var header_setting =
-        this.vis.config['heading|' + headerCell.modelField.name];
-      var label_setting =
-        this.vis.config['label|' + headerCell.modelField.name];
+      return headerCell.label; // Return the user-defined label without conversion
+    }
 
-      if (headerCell.type === 'heading') {
-        if (typeof header_setting !== 'undefined') {
-          label = header_setting
-            ? header_setting
-            : headerCell.modelField.heading;
-        } else {
-          label = headerCell.modelField.heading;
-        }
-        return label;
+    let label = headerCell.modelField.label;
+    let header_setting =
+      this.vis.config['heading|' + headerCell.modelField.name];
+    let label_setting = this.vis.config['label|' + headerCell.modelField.name];
+
+    if (headerCell.type === 'heading') {
+      label =
+        typeof header_setting !== 'undefined'
+          ? header_setting
+          : headerCell.modelField.heading;
+    } else if (headerCell.type === 'field') {
+      label = this.vis.useShortName
+        ? headerCell.modelField.short_name || headerCell.modelField.label
+        : headerCell.modelField.label;
+
+      if (
+        typeof label_setting !== 'undefined' &&
+        label_setting !== this.modelField.label
+      ) {
+        label = label_setting ? label_setting : label;
       }
 
-      if (headerCell.type === 'field') {
-        label = this.vis.useShortName
-          ? headerCell.modelField.short_name || headerCell.modelField.label
-          : headerCell.modelField.label;
-
-        if (
-          typeof label_setting !== 'undefined' &&
-          label_setting !== this.modelField.label
-        ) {
-          label = label_setting ? label_setting : label;
-        }
-
-        if (this.isVariance) {
-          if (this.vis.groupVarianceColumns) {
-            if (this.vis.pivot_values.length === 2) {
-              label =
-                this.variance_type === 'absolute' ? label + ' #' : label + ' %';
-            } else {
-              label =
-                this.variance_type === 'absolute'
-                  ? label + ' Var #'
-                  : label + ' Var %';
-            }
-          } else {
-            label = this.variance_type === 'absolute' ? 'Var #' : 'Var %';
-          }
-        }
-
-        if (
-          typeof this.vis.useViewName !== 'undefined' &&
-          this.vis.useViewName
-        ) {
-          label = [this.modelField.view, label].join(' ');
-        }
+      if (this.isVariance) {
+        label = this.vis.groupVarianceColumns
+          ? this.variance_type === 'absolute'
+            ? label + ' #'
+            : label + ' %'
+          : this.variance_type === 'absolute'
+          ? 'Var #'
+          : 'Var %';
       }
 
-      if (headerCell.type === 'pivot') {
-        if (this.isVariance && this.vis.groupVarianceColumns) {
-          if (this.vis.pivot_values.length === 2) {
-            label = 'Variance';
-          } else {
-            label = 'Var ' + label;
-          }
-        }
+      if (typeof this.vis.useViewName !== 'undefined' && this.vis.useViewName) {
+        label = [this.modelField.view, label].join(' ');
       }
     }
 
+    if (headerCell.type === 'pivot') {
+      if (this.isVariance && this.vis.groupVarianceColumns) {
+        label =
+          this.vis.pivot_values.length === 2 ? 'Variance' : 'Var ' + label;
+      }
+    }
+
+    // Return the label (may be modified later in HeaderCell)
     return label;
   }
 
