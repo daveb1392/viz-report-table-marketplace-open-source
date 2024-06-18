@@ -162,7 +162,10 @@ class HeaderCell {
     this.cell_style = ['headerCell'].concat(cell_style);
     this.label =
       label === null
-        ? applyDateConversion(this.column.getHeaderCellLabel(level), this)
+        ? applyDateConversion(
+            column.getHeaderCellLabel(this.column.levels.indexOf(this)),
+            this
+          )
         : label;
 
     this.align = align
