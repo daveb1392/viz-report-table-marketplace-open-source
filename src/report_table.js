@@ -63,26 +63,6 @@ const buildReportTable = function (
     }
   });
 
-  const sortByColumnSeries = function (group) {
-    if (dataTable.transposeTable) {
-      return group;
-    }
-
-    const columnSeriesOrder = (dataTable.column_series || []).map(
-      col => col.column.id
-    );
-
-    const orderedGroup = [];
-    columnSeriesOrder.forEach(colName => {
-      group.forEach(group => {
-        if (colName === group.id) {
-          orderedGroup.push(group);
-        }
-      });
-    });
-    return orderedGroup;
-  };
-
   const renderTable = async function () {
     const getTextWidth = function (text, font = '') {
       var canvas =
@@ -135,96 +115,6 @@ const buildReportTable = function (
         }
       });
 
-    if (dataTable.minWidthForIndexColumns) {
-      var columnTextWidths = {};
-
-      if (!dataTable.transposeTable) {
-        dataTable.column_series
-          .filter(cs => !cs.column.hide)
-          .filter(cs => cs.column.modelField.type === 'dimension')
-          .forEach(cs => {
-            var maxLength = cs.series.values.reduce((a, b) =>
-              Math.max(getTextWidth(a), getTextWidth(b))
-            );
-            var columnId = cs.column.modelField.name;
-            if (dataTable.useIndexColumn) {
-              columnId = '$$$_index_$$$';
-              maxLength += 15;
-            }
-            columnTextWidths[columnId] = Math.ceil(maxLength);
-          });
-      } else {
-        dataTable.headers.forEach(header => {
-          var fontSize = 'bold ' + config.bodyFontSize + 'pt arial';
-          var maxLength = dataTable.transposed_data
-            .map(row => row.data[header.type].rendered)
-            .reduce((a, b) =>
-              Math.max(getTextWidth(a, fontSize), getTextWidth(b, fontSize))
-            );
-          columnTextWidths[header.type] = Math.ceil(maxLength);
-        });
-      }
-    }
-
-    var column_groups = table
-      .selectAll('colgroup')
-      .data(dataTable.getTableColumnGroups())
-      .enter()
-      .append('colgroup');
-
-    column_groups
-      .selectAll('col')
-      .data(d => d)
-      .enter()
-      .append('col')
-      .attr('id', d => ['col', d.id].join('').replace('.', ''))
-      .attr('span', 1)
-      .style('width', d => {
-        if (
-          dataTable.minWidthForIndexColumns &&
-          d.type === 'index' &&
-          typeof columnTextWidths[d.id] !== 'undefined'
-        ) {
-          return columnTextWidths[d.id] + 'px';
-        } else {
-          return '';
-        }
-      });
-
-    var header_rows = table
-      .append('thead')
-      .selectAll('tr')
-      .data(dataTable.getHeaderTiers())
-      .enter();
-
-    var header_cells = header_rows
-      .append('tr')
-      .selectAll('th')
-      .data((level, i) =>
-        dataTable.getTableHeaderCells(i).map(column => column.levels[i])
-      )
-      .enter();
-
-    header_cells
-      .append('th')
-      .text(d => d.label)
-      .attr('id', d => d.id)
-      .attr('colspan', d => d.colspan)
-      .attr('rowspan', d => d.rowspan)
-      .attr('class', d => {
-        var classes = ['reportTable'];
-        if (typeof d.cell_style !== 'undefined') {
-          classes = classes.concat(d.cell_style);
-        }
-        return classes.join(' ');
-      })
-      .style('text-align', d => d.align)
-      .style('font-size', config.headerFontSize + 'px')
-      .attr('draggable', true)
-      .call(drag)
-      .on('mouseover', cell => (dropTarget = cell))
-      .on('mouseout', () => (dropTarget = null));
-
     var table_rows = table
       .append('tbody')
       .selectAll('tr')
@@ -268,97 +158,20 @@ const buildReportTable = function (
         } else {
           text = d.value;
         }
+
         if (typeof text === 'string' && !isNaN(Date.parse(text))) {
           text = formatDate(text);
+          console.log(`Formatted Date: ${text}`); // Debugging line to check formatted date
         }
+
         return text ? text.replace('-', '\u2011') : text;
       })
-      .attr('rowspan', d => d.rowspan)
-      .attr('colspan', d => d.colspan)
-      .style('text-align', d => d.align)
-      .style('font-size', config.bodyFontSize + 'px')
       .attr('class', d => {
         var classes = ['reportTable'];
-        if (typeof d.value === 'object') {
-          classes.push('cellSeries');
-        }
-        if (typeof d.align !== 'undefined') {
-          classes.push(d.align);
-        }
-        if (typeof d.cell_style !== 'undefined') {
-          classes = classes.concat(d.cell_style);
-        }
         if (typeof d.value === 'string' && !isNaN(Date.parse(d.value))) {
           classes.push('dateColumn');
         }
         return classes.join(' ');
-      })
-      .on('mouseover', d => {
-        if (dataTable.showHighlight) {
-          var id = !dataTable.transposeTable
-            ? ['col', d.colid].join('').replace('.', '')
-            : ['col', d.rowid].join('').replace('.', '');
-          var colElement = document.getElementById(id);
-          colElement.classList.toggle('hover');
-        }
-
-        if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          var x = d3.event.clientX;
-          var y = d3.event.clientY;
-          var html = dataTable.getCellToolTip(d.rowid, d.colid);
-
-          d3.select('#tooltip')
-            .style('left', x + 'px')
-            .style('top', y + 'px')
-            .html(html);
-
-          d3.select('#tooltip').classed('hidden', false);
-        }
-      })
-      .on('mousemove', d => {
-        if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          var tooltip = d3.select('#tooltip');
-          var x =
-            d3.event.clientX < chartCentreX
-              ? d3.event.pageX + 10
-              : d3.event.pageX -
-                tooltip.node().getBoundingClientRect().width -
-                10;
-          var y =
-            d3.event.clientY < chartCentreY
-              ? d3.event.pageY + 10
-              : d3.event.pageY -
-                tooltip.node().getBoundingClientRect().height -
-                10;
-
-          tooltip.style('left', x + 'px').style('top', y + 'px');
-        }
-      })
-      .on('mouseout', d => {
-        if (dataTable.showHighlight) {
-          var id = !dataTable.transposeTable
-            ? ['col', d.colid].join('').replace('.', '')
-            : ['col', d.rowid].join('').replace('.', '');
-          var colElement = document.getElementById(id);
-          colElement.classList.toggle('hover');
-        }
-
-        if (dataTable.showTooltip && d.cell_style.includes('measure')) {
-          d3.select('#tooltip').classed('hidden', true);
-        }
-      })
-      .on('click', d => {
-        if (d.links !== [] && d.links[0].url) {
-          let event = {
-            metaKey: d3.event.metaKey,
-            pageX: d3.event.pageX,
-            pageY: d3.event.pageY - window.pageYOffset,
-          };
-          LookerCharts.Utils.openDrillMenu({
-            links: d.links,
-            event: event,
-          });
-        }
       });
 
     if (use_minicharts) {
