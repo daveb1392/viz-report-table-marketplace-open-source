@@ -161,7 +161,6 @@ const buildReportTable = function (
 
         if (typeof text === 'string' && !isNaN(Date.parse(text))) {
           text = formatDate(text);
-          console.log(`Formatted Date: ${text}`); // Debugging line to check formatted date
         }
 
         return text ? text.replace('-', '\u2011') : text;
