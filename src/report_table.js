@@ -31,10 +31,10 @@ const loadStylesheet = function (link) {
   document.getElementsByTagName('head')[0].appendChild(linkElement);
 };
 
-const convertDateDimension = dateString => {
+const formatDate = function (dateString) {
   const date = new Date(dateString);
   const options = {year: '2-digit', month: 'short'};
-  return date.toLocaleDateString('en-US', options); // "Apr 23"
+  return date.toLocaleDateString('en-US', options);
 };
 
 const buildReportTable = function (
@@ -49,15 +49,39 @@ const buildReportTable = function (
   const chartCentreY = bounds.y + bounds.height / 2;
 
   removeStyles().then(() => {
-    if (config.customTheme && config.theme === 'custom') {
+    if (
+      typeof config.customTheme !== 'undefined' &&
+      config.customTheme &&
+      config.theme === 'custom'
+    ) {
       loadStylesheet(config.customTheme);
-    } else if (themes[config.theme]) {
+    } else if (typeof themes[config.theme] !== 'undefined') {
       themes[config.theme].use();
     }
-    if (themes[config.layout]) {
+    if (typeof themes[config.layout] !== 'undefined') {
       themes[config.layout].use();
     }
   });
+
+  const sortByColumnSeries = function (group) {
+    if (dataTable.transposeTable) {
+      return group;
+    }
+
+    const columnSeriesOrder = (dataTable.column_series || []).map(
+      col => col.column.id
+    );
+
+    const orderedGroup = [];
+    columnSeriesOrder.forEach(colName => {
+      group.forEach(group => {
+        if (colName === group.id) {
+          orderedGroup.push(group);
+        }
+      });
+    });
+    return orderedGroup;
+  };
 
   const renderTable = async function () {
     const getTextWidth = function (text, font = '') {
@@ -183,9 +207,7 @@ const buildReportTable = function (
 
     header_cells
       .append('th')
-      .text(d =>
-        d.dataType === 'date' ? convertDateDimension(d.label) : d.label
-      )
+      .text(d => d.label)
       .attr('id', d => d.id)
       .attr('colspan', d => d.colspan)
       .attr('rowspan', d => d.rowspan)
@@ -246,8 +268,10 @@ const buildReportTable = function (
         } else {
           text = d.value;
         }
-        text = String(text);
-        return text ? text.replace('-', '\u2011') : text; // prevents wrapping on minus sign / hyphen
+        if (typeof text === 'string' && !isNaN(Date.parse(text))) {
+          text = formatDate(text);
+        }
+        return text ? text.replace('-', '\u2011') : text;
       })
       .attr('rowspan', d => d.rowspan)
       .attr('colspan', d => d.colspan)
@@ -264,13 +288,16 @@ const buildReportTable = function (
         if (typeof d.cell_style !== 'undefined') {
           classes = classes.concat(d.cell_style);
         }
+        if (typeof d.value === 'string' && !isNaN(Date.parse(d.value))) {
+          classes.push('dateColumn');
+        }
         return classes.join(' ');
       })
       .on('mouseover', d => {
         if (dataTable.showHighlight) {
-          var id = dataTable.transposeTable
-            ? ['col', d.rowid].join('').replace('.', '')
-            : ['col', d.colid].join('').replace('.', '');
+          var id = !dataTable.transposeTable
+            ? ['col', d.colid].join('').replace('.', '')
+            : ['col', d.rowid].join('').replace('.', '');
           var colElement = document.getElementById(id);
           colElement.classList.toggle('hover');
         }
@@ -309,9 +336,9 @@ const buildReportTable = function (
       })
       .on('mouseout', d => {
         if (dataTable.showHighlight) {
-          var id = dataTable.transposeTable
-            ? ['col', d.rowid].join('').replace('.', '')
-            : ['col', d.colid].join('').replace('.', '');
+          var id = !dataTable.transposeTable
+            ? ['col', d.colid].join('').replace('.', '')
+            : ['col', d.rowid].join('').replace('.', '');
           var colElement = document.getElementById(id);
           colElement.classList.toggle('hover');
         }
@@ -365,7 +392,9 @@ const buildReportTable = function (
       minicharts
         .append('rect')
         .style('fill', 'steelblue')
-        .attr('x', value => value.idx * barWidth)
+        .attr('x', value => {
+          return value.idx * barWidth;
+        })
         .attr(
           'y',
           value => barHeight - Math.floor((value.value / value.max) * barHeight)

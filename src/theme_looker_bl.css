@@ -192,3 +192,15 @@ s
   font-family: Open Sans, Helvetica, Arial, sans-serif;
   margin: 4px;
 }
+
+.dateColumn {
+  color: blue; /* Change color as needed */
+  font-weight: bold; /* Change styling as needed */
+}
+
+/* Additional rules to format the date as "MMM YY" */
+.dateColumn::after {
+  content: attr(data-value);
+  white-space: nowrap;
+}
+
