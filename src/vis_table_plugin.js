@@ -695,6 +695,12 @@ class VisPluginTableModel {
                   ) {
                     label = 'Row Total';
                   }
+                  if (
+                    header.type === 'pivot0' &&
+                    /^\d{4}-\d{2}-\d{2}$/.test(label)
+                  ) {
+                    label = new HeaderCell({}).formatDate(label);
+                  }
                   column.levels.push(
                     new HeaderCell({
                       column: column,

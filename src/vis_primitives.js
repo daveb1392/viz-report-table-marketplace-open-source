@@ -160,8 +160,30 @@ class HeaderCell {
       this.cell_style.push('calculation');
     }
   }
-}
 
+  formatDate(dateString) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    const date = new Date(dateString);
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return `${months[date.getMonth()]} ${date
+      .getFullYear()
+      .toString()
+      .substr(-2)}`;
+  }
+}
 /**
  * types: dimension | line_item | subtotal | total
  */
