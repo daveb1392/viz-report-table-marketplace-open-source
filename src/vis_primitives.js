@@ -130,11 +130,11 @@ class HeaderCell {
     label = null,
     align = '',
     cell_style = [],
-    modelField = {name: '', label: '', view: ''},
+    modelField = null,
     pivotData = {},
   } = {}) {
     this.id = column ? [column.id, type].join('.') : type;
-    this.column = column;
+    this.column = column || {};
     this.type = type;
     this.colspan = 1;
     this.rowspan = 1;
@@ -144,17 +144,17 @@ class HeaderCell {
 
     this.align = align
       ? align
-      : this.column.modelField.is_numeric
+      : modelField && modelField.is_numeric
       ? 'right'
       : 'left';
 
-    this.modelField = modelField;
+    this.modelField = modelField || {};
     this.pivotData = pivotData;
 
-    if (modelField.type) {
-      this.cell_style.push(modelField.type);
+    if (this.modelField && this.modelField.type) {
+      this.cell_style.push(this.modelField.type);
     }
-    if (modelField.is_table_calculation) {
+    if (this.modelField && this.modelField.is_table_calculation) {
       this.cell_style.push('calculation');
     }
   }

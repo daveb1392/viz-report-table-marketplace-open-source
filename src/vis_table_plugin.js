@@ -703,6 +703,7 @@ class VisPluginTableModel {
                     const headerCell = new HeaderCell({type: header.type});
                     label = headerCell.formatDate(label);
                   }
+
                   column.levels.push(
                     new HeaderCell({
                       column: column,
