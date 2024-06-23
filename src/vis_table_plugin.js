@@ -697,9 +697,11 @@ class VisPluginTableModel {
                   }
                   if (
                     header.type === 'pivot0' &&
+                    typeof label === 'string' &&
                     /^\d{4}-\d{2}-\d{2}$/.test(label)
                   ) {
-                    label = new HeaderCell({}).formatDate(label);
+                    const headerCell = new HeaderCell({type: header.type});
+                    label = headerCell.formatDate(label);
                   }
                   column.levels.push(
                     new HeaderCell({

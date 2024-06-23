@@ -124,18 +124,16 @@ class ModelMeasure extends ModelField {
 }
 
 class HeaderCell {
-  constructor(
-    {
-      column,
-      type,
-      label = null,
-      align = '',
-      cell_style = [],
-      modelField = {name: '', label: '', view: ''},
-      pivotData = {},
-    } = {column, type, label, align, cell_style, modelField, pivotData}
-  ) {
-    this.id = [column.id, type].join('.');
+  constructor({
+    column,
+    type,
+    label = null,
+    align = '',
+    cell_style = [],
+    modelField = {name: '', label: '', view: ''},
+    pivotData = {},
+  } = {}) {
+    this.id = column ? [column.id, type].join('.') : type;
     this.column = column;
     this.type = type;
     this.colspan = 1;
@@ -162,7 +160,11 @@ class HeaderCell {
   }
 
   formatDate(dateString) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) return dateString;
+    if (
+      typeof dateString !== 'string' ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(dateString)
+    )
+      return dateString;
     const date = new Date(dateString);
     const months = [
       'Jan',
